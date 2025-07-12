@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --main-color: blue;
+        }
+        #container {
+            --local-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <svg width="200" height="200">
+            <foreignObject width="100%" height="100%">
+                <math xmlns="http://www.w3.org/1998/Math/MathML">
+                    <mstyle mathcolor="var(--main-color)">
+                        <msup>
+                            <mi>x</mi>
+                            <mn>2</mn>
+                        </msup>
+                    </mstyle>
+                </math>
+            </foreignObject>
+        </svg>
+    </div>
+
+    <script>
+        // DevTools: Run this in console to observe property inheritance
+        function inspectCustomProperties(element) {
+            const styles = getComputedStyle(element);
+            console.log('Custom Properties:', {
+                '--main-color': styles.getPropertyValue('--main-color'),
+                '--local-color': styles.getPropertyValue('--local-color')
+            });
+        }
+
+        // Inspect different namespace elements
+        const mathEl = document.querySelector('mstyle');
+        const svgEl = document.querySelector('svg');
+        const containerEl = document.querySelector('#container');
+
+        console.group('Custom Property Inheritance Across Namespaces');
+        inspectCustomProperties(mathEl);
+        inspectCustomProperties(svgEl);
+        inspectCustomProperties(containerEl);
+        console.groupEnd();
+
+        // Observe property changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes') {
+                    console.log('Property updated:', mutation.attributeName);
+                    inspectCustomProperties(mutation.target);
+                }
+            });
+        });
+
+        observer.observe(containerEl, {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    </script>
+</body>
+</html>
